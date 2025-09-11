@@ -76,6 +76,20 @@ VALUES
 ('Cas', 28, 'AU');
 GO
 
+-- Slecht idee, want uitgevoerd voor elke regel:
+--CREATE OR ALTER FUNCTION dbo.FindCountryCode(@AccountId int)
+--RETURNS char(2)
+--AS
+--BEGIN
+--	DECLARE @CountryCode char(2);
+--	SELECT @CountryCode = CountryCode
+--	FROM Accounts
+--	WHERE Id = @AccountId;
+--	RETURN @CountryCode;
+--END;
+
+GO
+
 -- Onderstaand is meestal een slecht idee
 --SET IDENTITY_INSERT Accounts ON;
 
@@ -87,6 +101,9 @@ GO
 --SET IDENTITY_INSERT Accounts OFF;
 
 GO
+
+
+-- Nu als triggers
 
 -- UNIQUE Constraint: elk account mag maar 1 transactie per dag doen
 --                    hierbij een computed column geïntroduceerd
@@ -107,9 +124,34 @@ CREATE TABLE Transactions
 						ON DELETE CASCADE
 						ON UPDATE CASCADE,
 						CONSTRAINT UQ_Transactions_AccountId_TransactionDate	-- UNIQUE constraint
-						UNIQUE (AccountId, TransactionDay)
+						UNIQUE (AccountId, TransactionDay) --,
+						--CONSTRAINT CHK_WhenNL_ThenMinAmount50
+						--CHECK (IIF(dbo.FindCountryCode(AccountId) = 'NL' AND Amount < 50.00, 0, 1) = 1)
 );
 GO
+
+
+CREATE OR ALTER TRIGGER dbo.Transactions_CheckCountryAmount
+ON Transactions
+AFTER INSERT, UPDATE
+AS
+BEGIN 
+	IF EXISTS
+	(
+		SELECT 1
+		FROM inserted AS i
+		INNER JOIN Accounts AS a
+		ON i.AccountId = a.Id
+		WHERE a.CountryCode = 'NL'
+		AND i.Amount < 50.00
+	)
+	BEGIN
+		THROW 50001, 'Transactions bla bla', 1;
+		ROLLBACK TRANSACTION;
+	END
+END;
+GO
+
 
 -- Hoe om te gaan met kolommen met DEFAULT value:
 -- manier 1:
@@ -126,11 +168,10 @@ VALUES
 (2, 100, DEFAULT);
 GO
 
-
 INSERT INTO Transactions
 (AccountId, Amount, TransactionDate)
 VALUES
-(1, 100.00, '2025-01-01T22:23:56'),
+(1, 100, '2025-01-01T22:23:56'),
 (2, 150.50, '2025-05-01T22:23:56'),
 (3, 200.75, '2025-02-01T22:23:56'),
 (1, 120.00, '2025-03-01T22:23:56'),
@@ -173,4 +214,7 @@ ON a.Id = t.AccountId;
 
 -- Bij het aanmaken van een nieuwe transactie moet er een check plaatsvinden:
 -- Als het om een Nederlands account gaat, moet het minimale bedrag 50.00 zijn
+
+GO
+
 

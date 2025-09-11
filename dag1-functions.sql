@@ -31,7 +31,7 @@ CREATE OR ALTER FUNCTION dbo.ContainsCapitalLetter
 RETURNS bit
 AS
 BEGIN
-    DECLARE @index int = 1;
+    DECLARE @index AS int = 1;
 
     WHILE @index <= LEN(@input)
     BEGIN
