@@ -1,0 +1,32 @@
+USE tempdb;
+GO
+
+DROP TABLE IF EXISTS nummers;
+
+CREATE TABLE nummers
+(
+	kolom1 int PRIMARY KEY
+);
+GO
+
+INSERT INTO nummers
+VALUES (1),(2),(3),(4),(5);
+
+SELECT * FROM nummers
+
+-- mag
+INSERT INTO nummers VALUES (1);
+INSERT INTO nummers VALUES (99);
+
+-- mag
+BEGIN TRANSACTION;
+	INSERT INTO nummers VALUES (1);
+	INSERT INTO nummers VALUES (100);
+COMMIT TRANSACTION;
+
+-- mag niet meer
+SET XACT_ABORT ON;
+BEGIN TRANSACTION;
+	INSERT INTO nummers VALUES (1);
+	INSERT INTO nummers VALUES (101);
+COMMIT TRANSACTION;
