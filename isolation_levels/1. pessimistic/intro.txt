@@ -1,0 +1,34 @@
+Pessimistic:
+
+Op een database zijn er READERS en WRITERS:
+READER: 
+- een SELECT statement
+- moet een SHARED LOCK (s) krijgen
+
+WRITER: 
+- een INSERT, UPDATE of DELETE statement
+- moet een EXCLUSIVE LOCK (x) krijgen
+
+De locks (s) en (x) kunnen zich niet tegelijkertijd op dezelfde data bevinden! 
+(s) - (s) 👍
+(s) - (x) 👎
+(x) - (x) 👎
+
+Dus:
+- WRITERS blokken WRITERS
+- READERS blokken WRITERS
+- WRITERS blokken READERS
+
+- READERS blokken niet READERS
+
+
+Met een ISOLATION LEVEL bepaalt een READER hoe lang hij zijn SHARED LOCK (s) wil behouden.
+
+De READER heeft de keuze uit 4 smaken:
+
+- READ UNCOMMITTED
+- READ COMMITTED	◀ standaard
+- REPEATABLE READ
+- SERIALIZABLE
+
+

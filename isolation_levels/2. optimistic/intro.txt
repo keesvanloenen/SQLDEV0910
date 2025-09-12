@@ -1,0 +1,15 @@
+Optimistic:
+
+READERS krijgen nooit een LOCK.
+In plaats daarvan zullen door een WRITER geupdate records met hun oorspronkelijk waarden belanden in de Version Store (in tempbd).
+
+De READER heeft de keuze uit 2 smaken:
+
+- READ COMMITTED SNAPSHOT
+- SNAPSHOT
+
+READ COMMITTED SNAPSHOT is een eenmalige instelling in de database. In de queries hoeft verder geen ISOLATION LEVEL te worden opgegeven. READ COMMITTED SNAPSHOT is dan de nieuwe standaard geworden.
+
+SNAPSHOT is een tweede eenmalige instelling in de database. De READER moet daarnaast dit level opgeven in de code met:
+
+SET ALLOW_SNAPSHOT_ISOLATION ON;
